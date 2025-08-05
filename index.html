@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DEE LP/UP Final Score Calculator</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; }
+    h1 { text-align: center; color: #2E86C1; }
+    label { display: block; margin-top: 10px; font-weight: bold; }
+    input, select { width: 100%; padding: 8px; margin-top: 5px; }
+    button { margin-top: 15px; padding: 10px; background-color: #4CAF50; color: white; border: none; cursor: pointer; width: 100%; }
+    .result { margin-top: 20px; padding: 10px; background: #f2f2f2; border-left: 5px solid #4CAF50; }
+  </style>
+</head>
+<body>
+  <h1>Axom Exam Yatra</h1>
+  <h2>DEE LP/UP Final Score Calculator</h2>
+
+  <label for="postType">Select Post (LP or UP):</label>
+  <select id="postType">
+    <option value="LP">Lower Primary (LP)</option>
+    <option value="UP">Upper Primary (UP)</option>
+  </select>
+
+  <label for="name">Name:</label>
+  <input type="text" id="name">
+
+  <label for="hs">HS %:</label>
+  <input type="number" id="hs" min="0" max="100">
+
+  <div id="upFields">
+    <label for="grad">Graduation %:</label>
+    <input type="number" id="grad" min="0" max="100">
+  </div>
+
+  <label for="prof">DElEd/B.Ed %:</label>
+  <input type="number" id="prof" min="0" max="100">
+
+  <label for="tet">TET %:</label>
+  <input type="number" id="tet" min="0" max="100">
+
+  <label for="bonus">Bonus Marks (0 to 5, for Sports/Culture/NCC):</label>
+  <input type="number" id="bonus" min="0" max="5">
+
+  <button onclick="calculateScore()">Calculate Final Score</button>
+
+  <div class="result" id="output" style="display:none;"></div>
+
+  <script>
+    document.getElementById("postType").addEventListener("change", function() {
+      const isUP = this.value === "UP";
+      document.getElementById("upFields").style.display = isUP ? "block" : "none";
+    });
+
+    function calculateScore() {
+      const postType = document.getElementById("postType").value;
+      const name = document.getElementById("name").value;
+      const hs = parseFloat(document.getElementById("hs").value);
+      const grad = parseFloat(document.getElementById("grad").value || 0);
+      const prof = parseFloat(document.getElementById("prof").value);
+      const tet = parseFloat(document.getElementById("tet").value);
+      const bonus = parseFloat(document.getElementById("bonus").value);
+
+      if ([hs, prof, tet, bonus].some(isNaN) || hs > 100 || prof > 100 || tet > 100 || bonus > 5 || bonus < 0 || (postType === "UP" && (isNaN(grad) || grad > 100))) {
+        alert("Please enter valid values. Percentages must be between 0–100 and bonus between 0–5.");
+        return;
+      }
+
+      let hsWeight = 0.05 * hs;
+      let gradWeight = postType === "UP" ? 0.05 * grad : 0;
+      let profWeight = 0.05 * prof;
+      let tetWeight = postType === "UP" ? 0.80 * tet : 0.85 * tet;
+      let final = hsWeight + gradWeight + profWeight + tetWeight + bonus;
+
+      document.getElementById("output").style.display = "block";
+      document.getElementById("output").innerHTML = `
+        <strong>${name}</strong><br>
+        Post: ${postType}<br>
+        HS (5%): ${hsWeight.toFixed(2)}<br>
+        ${postType === "UP" ? `Graduation (5%): ${gradWeight.toFixed(2)}<br>` : ""}
+        DElEd/B.Ed (5%): ${profWeight.toFixed(2)}<br>
+        TET (${postType === "UP" ? "80" : "85"}%): ${tetWeight.toFixed(2)}<br>
+        Bonus Marks (Sports/Culture/NCC): ${bonus.toFixed(2)}<br>
+        <hr>
+        <strong>Final Score: ${final.toFixed(2)}%</strong>
+      `;
+    }
+
+    // Disable right-click
+    document.addEventListener("contextmenu", event => event.preventDefault());
+    // Disable key shortcuts like Ctrl+U or F12
+    document.onkeydown = function(e) {
+      if (e.ctrlKey && (e.key === 'u' || e.key === 'U' || e.key === 's' || e.key === 'S')) return false;
+      if (e.key === 'F12') return false;
+    };
+  </script>
+</body>
+</html>
